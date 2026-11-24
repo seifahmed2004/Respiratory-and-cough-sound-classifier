@@ -8,18 +8,18 @@ An end-to-end audio machine learning pipeline that tests whether cough recording
 
 ## Table of contents
 
-1. [Overview](#overview)
-2. [Dataset](#dataset)
-3. [Pipeline](#pipeline)
-4. [Models](#models)
-5. [Evaluation protocol](#evaluation-protocol)
-6. [Results](#results)
-7. [Sanity check](#sanity-check)
-8. [Limitations](#limitations)
-9. [Ethics and responsible use](#ethics-and-responsible-use)
-10. [Future work](#future-work)
-11. [Citation and license](#citation-and-license)
-12. [Author](#author)
+1. [Overview](https://github.com/seifahmed2004/Respiratory-and-cough-sound-classifier/blob/main/README.md#overview)
+2. [Dataset](https://github.com/seifahmed2004/Respiratory-and-cough-sound-classifier/blob/main/README.md#dataset)
+3. [Pipeline](https://github.com/seifahmed2004/Respiratory-and-cough-sound-classifier/blob/main/README.md#pipeline)
+4. [Models](https://github.com/seifahmed2004/Respiratory-and-cough-sound-classifier/blob/main/README.md#models)
+5. [Evaluation protocol](https://github.com/seifahmed2004/Respiratory-and-cough-sound-classifier/blob/main/README.md#evaluation-protocol)
+6. [Results](https://github.com/seifahmed2004/Respiratory-and-cough-sound-classifier/blob/main/README.md#results)
+7. [Sanity check](https://github.com/seifahmed2004/Respiratory-and-cough-sound-classifier/blob/main/README.md#sanity-check)
+8. [Limitations](https://github.com/seifahmed2004/Respiratory-and-cough-sound-classifier/blob/main/README.md#limitations)
+9. [Ethics and responsible use](https://github.com/seifahmed2004/Respiratory-and-cough-sound-classifier/blob/main/README.md#ethics-and-responsible-use)
+10. [Future work](https://github.com/seifahmed2004/Respiratory-and-cough-sound-classifier/blob/main/README.md#future-work)
+11. [Citation and license](https://github.com/seifahmed2004/Respiratory-and-cough-sound-classifier/blob/main/README.md#citation-and-license)
+12. [Author](https://github.com/seifahmed2004/Respiratory-and-cough-sound-classifier/blob/main/README.md#author)
 
 ---
 
@@ -31,8 +31,8 @@ What the project covers:
 
 - Audio preprocessing (decoding, resampling, silence trimming, normalization)
 - Feature engineering (MFCCs, deltas, spectral statistics) and log-mel spectrograms
-- Three model families: SVM / Random Forest, a log-mel CNN, and pretrained AST embeddings with logistic regression
-- Clinical-style evaluation: AUC with bootstrap 95% confidence intervals, sensitivity, specificity, PR-AUC, with the decision threshold chosen on validation data only
+- Four model setups: SVM, Random Forest, a log-mel CNN, and pretrained AST embeddings with logistic regression
+- Clinical-style evaluation: AUC with bootstrap 95% confidence intervals, sensitivity, specificity and PR-AUC, with the decision threshold chosen on validation data only
 - Explainability with Grad-CAM on the CNN
 - Error analysis, a pipeline sanity check and an honest discussion of limitations
 
@@ -45,14 +45,14 @@ What the project covers:
 | | |
 |---|---|
 | **Download (version used)** | https://zenodo.org/records/4048312 (`public_dataset.zip`) |
-| **Newer version (v3, ~2.3 GB)** | https://zenodo.org/records/7024894 (`public_dataset_v3.zip`) |
+| **Newer version (v3, about 2.3 GB)** | https://zenodo.org/records/7024894 (`public_dataset_v3.zip`) |
 | **Paper** | https://doi.org/10.1038/s41597-021-00937-4 |
 | **License** | CC BY 4.0 (attribution required) |
 | **Size** | 25,000+ recordings; 2,800+ with expert physician annotations |
 
 **What the dataset contains**
 
-- Audio recordings (`.webm` / `.ogg`), one JSON metadata file per recording
+- Audio recordings (`.webm` / `.ogg`) with one JSON metadata file per recording
 - `metadata_compiled.csv` with one row per recording
 - Key columns used here:
   - `uuid`: recording ID
@@ -68,9 +68,7 @@ What the project covers:
 | `status` (default) | Self-reported `status` column | 0 = healthy, 1 = unwell (symptomatic or COVID-19) |
 | `expert` | Majority vote of physician diagnoses | 0 = healthy cough, 1 = any condition |
 
-Only recordings with `cough_detected >= 0.8` are kept to exclude non-cough audio.
-
-The data is **not included** in this repository. Download it from the link above and unzip it locally or in Colab.
+Only recordings with `cough_detected >= 0.8` are kept, to exclude non-cough audio. The data is **not included** in this repository. Download it from the link above.
 
 ---
 
@@ -103,16 +101,17 @@ Splits are stratified by label: 70% train, 15% validation, 15% test (seed 42).
 
 ## Evaluation protocol
 
-- **Metrics:** ROC-AUC (with 1,000-sample bootstrap 95% CI), PR-AUC, sensitivity (recall), specificity, precision, F1, balanced accuracy
+- **Metrics:** ROC-AUC (with 1,000-sample bootstrap 95% CI), PR-AUC, sensitivity (recall), specificity, precision, F1 and balanced accuracy
 - **Threshold:** chosen by Youden's J on the **validation** set only, never on test
 - **Why not accuracy:** classes are imbalanced, and in a screening setting missed cases and false alarms have different costs
 - **Explainability:** Grad-CAM heatmaps show which time-frequency regions drive the CNN's predictions
+- **Reproducibility:** all splits and models use `seed = 42`
 
 ---
 
 ## Results
 
-> Fill this table from `results/*/*_metrics.json` after the full-data run.
+> Replace every `TBD` with your full-data numbers from the model comparison table (`results/*/*_metrics.json`).
 
 **Full dataset (`status` task, `cough_detected >= 0.8`)**
 
@@ -125,11 +124,11 @@ Splits are stratified by label: 70% train, 15% validation, 15% test (seed 42).
 
 Dataset size after filtering: `TBD` recordings (healthy: `TBD`, unwell: `TBD`). Test set: `TBD` recordings.
 
-**Observations from development**
+**Observations**
 
-- On a small balanced subset (300 per class, 90 test clips), all models performed near chance (for example AST + logistic regression reached AUC 0.542), and the CNN collapsed to a near-constant output. That subset was too small to train on.
-- On the full dataset the CNN began producing a wide spread of probabilities. Report the final full-data numbers above.
-- Error analysis showed the CNN and the classical models often disagreed on false alarms. See the analysis notebook cells for recording-quality checks (SNR, duration) and demographic breakdowns.
+- **Subset run (300 recordings per class, 90 test clips):** all models performed near chance (AST + logistic regression reached AUC 0.542), and the CNN collapsed to an almost constant output. That subset was too small to train on.
+- **Full-data run:** the CNN produced a wide spread of probabilities, so it was learning something. At the validation-chosen threshold it missed 205 unwell cases and raised 715 false alarms on the test set. The large number of false alarms is partly a threshold effect, because the unwell class is the minority and the threshold balances sensitivity and specificity instead of minimizing total errors.
+- **Model disagreement:** on the most confident CNN false alarms, the classical models gave much lower scores. That suggests the CNN may react to recording conditions as well as to the cough itself, which is worth checking with SNR, duration and demographic breakdowns.
 
 ---
 
@@ -139,9 +138,10 @@ To confirm the pipeline itself works, the same handcrafted features were used to
 
 | Check | Result |
 |---|---|
-| Gender classification AUC (subset, n = 90 test clips) | **0.775** |
+| Gender classification AUC (full dataset, n = 2,016 test clips with known gender) | **0.815** |
+| Earlier run on a small subset (n = 90 test clips) | 0.775 |
 
-A well above chance result on an audible attribute shows that audio loading, conversion, feature extraction and splitting are working, so weak health-classification performance reflects the difficulty of the task and label noise, not a pipeline bug.
+A well above chance result on an audible attribute shows that audio loading, conversion, feature extraction and splitting are working. Weak health-classification performance therefore reflects the difficulty of the task and the label noise, not a pipeline bug.
 
 ---
 
@@ -150,9 +150,9 @@ A well above chance result on an audible attribute shows that audio loading, con
 - **No participant ID.** COUGHVID does not identify speakers, so the same person may appear in both train and test, which can inflate results.
 - **Self-reported labels.** `status` is noisy. Physician labels are more reliable but cover only about 2,800 recordings.
 - **Crowdsourced recordings.** Phone microphones, background noise and recording conditions vary widely, and models can learn recording conditions instead of illness.
-- **Possible shortcuts.** Gender, age and recording quality can correlate with labels. Check these before trusting any result (see the shortcut checks in the notebook).
+- **Possible shortcuts.** Gender, age and recording quality can correlate with labels and should be checked before trusting any result.
 - **Class imbalance.** Healthy recordings far outnumber unwell ones.
-- **No external validation.** Models are not yet tested on another dataset (for example Coswara or ICBHI).
+- **No external validation.** Models are not yet tested on another dataset such as Coswara or ICBHI.
 - **Not clinically validated.** No claim is made about real-world screening performance.
 
 ---
@@ -161,50 +161,8 @@ A well above chance result on an audible attribute shows that audio loading, con
 
 - Uses only public, de-identified, openly licensed data, with attribution to the dataset authors.
 - Predictions are probabilistic and should never replace a clinician.
-- Healthcare AI must be validated across devices, demographics and environments before any deployment; this project has not done that.
-- Privacy: any audio recorded from users should be processed with consent and stored securely.
-
----
-
-### Requirements
-
-- Python 3.9+
-- `ffmpeg` (needed to decode `.webm` / `.ogg`)
-- A GPU is recommended for the CNN (a free Colab T4 is enough)
-
-```bash
-pip install -r requirements.txt
-# ffmpeg: sudo apt install ffmpeg | brew install ffmpeg | winget install ffmpeg
-```
-
-### Run with scripts
-
-```bash
-# 1) Download and unzip the dataset from https://zenodo.org/records/4048312
-python prepare_data.py --data_dir /path/to/public_dataset --out_dir data/processed
-
-# Quick test on a small subset first
-python prepare_data.py --data_dir /path/to/public_dataset --out_dir data/debug --max_per_class 300
-
-# 2) Classical baselines
-python train_baseline.py --manifest data/processed/manifest.csv --out_dir results/baseline
-
-# 3) CNN + Grad-CAM
-python train_cnn.py --manifest data/processed/manifest.csv --out_dir results/cnn
-```
-
-Use `--task expert` in `prepare_data.py` to train on physician-labeled recordings instead of self-reported status.
-
-### Run in Google Colab
-
-1. Open the notebook in `notebook/` and set the runtime to **GPU**.
-2. Run the install cell (ffmpeg, librosa) and download the dataset.
-3. Set `MAX_PER_CLASS = 300` for a quick test, or `None` for the full dataset.
-4. Run the data preparation, baseline, CNN, visualization and error-analysis cells in order.
-
-### Reproducibility
-
-All splits and models use `seed = 42`. Thresholds are chosen on the validation split only.
+- Healthcare AI must be validated across devices, demographics and environments before any deployment. This project has not done that.
+- Any audio recorded from real users should be processed with consent and stored securely.
 
 ---
 
@@ -212,7 +170,7 @@ All splits and models use `seed = 42`. Thresholds are chosen on the validation s
 
 - Group-aware splitting or external validation on Coswara and ICBHI
 - Controlling for gender, age and recording quality to rule out shortcuts
-- Fine-tuning pretrained audio models (AST, Wav2Vec2, BEATs) instead of frozen embeddings
+- Fine-tuning pretrained audio models (AST, Wav2Vec2, BEATs) instead of using frozen embeddings
 - Predicting acoustically grounded labels (wet vs dry cough, audible wheezing) from the expert annotations
 - Probability calibration analysis and decision-curve evaluation
 - A small demo app (FastAPI or Streamlit) with a clear "not a medical test" disclaimer, containerized with Docker
@@ -225,7 +183,7 @@ All splits and models use `seed = 42`. Thresholds are chosen on the validation s
 
 > Orlandic, L., Teijeiro, T., Atienza, D. The COUGHVID crowdsourcing dataset, a corpus for the study of large-scale cough analysis algorithms. *Scientific Data* 8, 156 (2021). https://doi.org/10.1038/s41597-021-00937-4
 
-**Code license:** add a license of your choice (for example MIT) to this repository. The dataset remains under its own CC BY 4.0 license and is not redistributed here.
+**Code license:** add a license file of your choice (for example MIT) to this repository. The dataset remains under its own CC BY 4.0 license and is not redistributed here.
 
 ---
 
