@@ -17,11 +17,9 @@ An end-to-end audio machine learning pipeline that tests whether cough recording
 7. [Sanity check](#sanity-check)
 8. [Limitations](#limitations)
 9. [Ethics and responsible use](#ethics-and-responsible-use)
-10. [Repository structure](#repository-structure)
-11. [Setup and usage](#setup-and-usage)
-12. [Future work](#future-work)
-13. [Citation and license](#citation-and-license)
-14. [Author](#author)
+10. [Future work](#future-work)
+11. [Citation and license](#citation-and-license)
+12. [Author](#author)
 
 ---
 
@@ -167,26 +165,6 @@ A well above chance result on an audible attribute shows that audio loading, con
 - Privacy: any audio recorded from users should be processed with consent and stored securely.
 
 ---
-
-## Repository structure
-
-```
-.
-├── README.md
-├── requirements.txt
-├── features.py          # audio loading, MFCC/spectral features, log-mel
-├── metrics_utils.py     # metrics, thresholding, bootstrap CI, plots
-├── prepare_data.py      # labels, filtering, wav conversion, train/val/test split
-├── train_baseline.py    # SVM + Random Forest
-├── train_cnn.py         # log-mel CNN + Grad-CAM
-├── notebook/            # Colab notebook with all cells (EDA, models, error analysis)
-├── results/             # metrics JSON, ROC curves, confusion matrices, Grad-CAM
-└── data/                # (not tracked) downloaded dataset and processed manifest
-```
-
----
-
-## Setup and usage
 
 ### Requirements
 
